@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aristocracy: Survival Through the Great War</title>
+    
+    <!-- Google Font: EB Garamond -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* === Global Styles === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'EB Garamond', serif;
+            background: linear-gradient(to bottom, #f7f3e8, #e8e2d0);
+            min-height: 100vh;
+            color: #3d352e;
+            padding: 20px;
+            font-size: 1.1em;
+            line-height: 1.7;
+        }
+
+        /* === Layout === */
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        .game-header {
+            text-align: center;
+            border-bottom: 2px double #a08c70;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 3.5em;
+            font-weight: 700;
+            color: #3d352e;
+            text-shadow: 1px 1px 0 #fff;
+            margin-bottom: 10px;
+        }
+
+        .game-subtitle {
+            font-size: 1.4em;
+            color: #665;
+            font-style: italic;
+        }
+
+        .game-content {
+            background: #fdfbf7;
+            border: 1px solid #c9c3b4;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .game-content {
+                padding: 1.5rem;
+            }
+            .game-title {
+                font-size: 2.5em;
+            }
+            
+            /* NEW: Stack the horizontal card vertically on mobile */
+            .character-card {
+                flex-direction: column;
+            }
+            
+            /* NEW: Reset image styles for stacked mobile view */
+            .character-card img {
+                flex-basis: auto; /* Reset basis */
+                width: 100%;
+                aspect-ratio: 3 / 4; 
+                border-right: none;
+                border-bottom: 1px solid #c9c3b4;
+            }
+        }
+
+        /* === Home Button === */
+        .home-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fdfbf7;
+            color: #3d352e;
+            border: 1px solid #c9c3b4;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            font-family: 'EB Garamond', serif;
+            font-weight: 700;
+        }
+
+        .home-button:hover {
+            background: #f0ebe2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* === Status & Scenario === */
+        .status-container {
+            display: grid;
+            /* Two-column layout */
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; /* Gap between columns */
+            margin-bottom: 30px;
+        }
+
+        /* === NEW Status Bar Styles === */
+        .status-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px; /* Space between bars */
+        }
+        .status-bar-label {
+            font-weight: 700;
+            color: #8a0303;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100px; /* Fixed width for alignment */
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .status-bar-wrapper {
+            flex-grow: 1;
+            height: 20px;
+            background: #f0ebe2;
+            border: 1px solid #dcd6c8;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .status-bar-fill {
+            height: 100%;
+            background: #a08c70; /* Thematic brown */
+            border-radius: 4px;
+            transition: width 0.3s ease-in-out;
+            /* Add a subtle gradient */
+            background-image: linear-gradient(to right, #a08c70, #b09c80);
+        }
+        /* Add a "danger" fill for low stats */
+        .status-bar-fill.danger {
+             background-image: linear-gradient(to right, #8a0303, #b34040); /* Crimson red */
+        }
+
+        @media (max-width: 600px) {
+            .status-container {
+                /* Stack on mobile */
+                grid-template-columns: 1fr; 
+            }
+            .status-bar-label {
+                width: 80px; /* Tighter label on mobile */
+                font-size: 0.9em;
+            }
+        }
+
+        .date-indicator {
+            background: #f0ebe2;
+            color: #3d352e;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.3em;
+            display: block;
+            border: 1px solid #dcd6c8;
+        }
+
+        .scenario-container {
+            background: #fff;
+            border: 1px solid #eee;
+            border-top: 4px double #c0a080;
+            padding: 25px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .scenario-title {
+            font-size: 2em;
+            color: #8a0303;
+            margin-bottom: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .scenario-text {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .historical-context {
+            background: #f7f3e8;
+            border-left: 3px solid #a08c70;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            font-style: italic;
+            color: #5c554c;
+        }
+
+        .historical-context h4 {
+            font-weight: 700;
+            color: #a08c70;
+            margin-bottom: 10px;
+            font-style: normal;
+        }
+
+        /* === Buttons & Choices === */
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .choice-button {
+            background: #fdfbf7;
+            color: #3d352e;
+            border: 1px solid #a08c70;
+            padding: 18px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-family: 'EB Garamond', serif;
+            font-weight: 700;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .choice-button:hover {
+            background: #f0ebe2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            border-color: #8a0303;
+        }
+
+        .choice-button:disabled {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            border-color: #ccc;
+        }
+
+        .choice-requirement {
+            font-size: 0.9em;
+            color: #8a0303;
+            font-style: italic;
+            margin-top: 8px;
+            display: block;
+        }
+
+        /* === Language & Character Selection === */
+        .language-selection, .character-selection {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .language-button {
+            background: #a08c70;
+            color: #fdfbf7;
+            border: none;
+            padding: 18px 40px;
+            margin: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-family: 'EB Garamond', serif;
+            font-weight: 700;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .language-button:hover {
+            background: #b09c80;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .character-selection h2 {
+            font-size: 2.2em;
+            color: #8a0303;
+            margin-bottom: 15px;
+        }
+        
+        .character-selection > p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .character-card-container {
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
+
+        .character-card {
+            background: #f0ebe2;
+            border: 1px solid #c9c3b4;
+            border-radius: 8px;
+            padding: 0; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden; 
+            display: flex;
+            flex-direction: row;
+            align-items: stretch; 
+        }
+
+        .character-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .character-card img {
+            width: auto; 
+            flex-basis: 120px; 
+            flex-shrink: 0; 
+            aspect-ratio: 3 / 4; 
+            object-fit: cover;
+            border-bottom: none; 
+            border-right: 1px solid #c9c3b4; 
+            filter: sepia(80%) grayscale(20%);
+            transition: filter 0.4s ease;
+        }
+
+        .character-card:hover img {
+            filter: sepia(0%) grayscale(0%);
+        }
+
+        .character-card-content {
+            padding: 25px;
+            flex-grow: 1;
+        }
+
+        .character-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #8a0303;
+            margin-bottom: 15px;
+        }
+
+        .character-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            font-size: 0.9em;
+            color: #3d352e;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* === Game Over / Complete === */
+        .game-over, .game-complete {
+            text-align: center;
+            padding: 40px;
+            border-radius: 8px;
+            margin: 30px 0;
+            font-size: 1.3em;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .game-over {
+            background: #8a0303;
+            color: #fdfbf7;
+            border: 1px solid #630202;
+        }
+
+        .game-complete {
+            background: #3a5935; 
+            color: #fdfbf7;
+            border: 1px solid #2a4026;
+        }
+        
+        .game-over h2, .game-complete h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .restart-button {
+            background: #fdfbf7;
+            color: #3d352e;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            font-family: 'EB Garamond', serif;
+            font-weight: 700;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .restart-button:hover {
+            background: #f0ebe2;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+    </style>
+<head>
+<body>
+    <div class="game-container">
+        
+        <button class="home-button" onclick="goHome()">Home</button>
+        
+        <header class="game-header">
+            <h1 class="game-title">Aristocracy</h1>
+            <p class="game-subtitle">Survival Through the Great War (1914-1930)</p>
+        </header>
+        
+        <main id="gameContent" class="game-content">
+            <!-- Game content will be dynamically generated here -->
+        </main>
+        
+    </div>
+
+    <script>
+        // === GAME STATE ===
+        let gameState = {};
+        const gameContent = document.getElementById('gameContent');
+
+        // === TEXT CONTENT (LOCALIZATION) ===
+        const texts = {
+            english: {
+                languageSelection: "Choose your language:",
+                english: "English",
+                kazakh: "Қазақ тілі",
+                russian: "Русский",
+                characterSelection: "Choose your identity:",
+                crownPrince: "Crown Prince Wilhelm of Prussia",
+                crownPrinceDesc: "As heir to the German throne, you are the face of the nation's military-aristocratic tradition. You are known for your reactionary views and love of military pageantry. Your every move is watched, and your position makes you a target for revolutionaries.",
+                duke: "Duke Ernst August of Brunswick",
+                dukeDesc: "Head of the House of Hanover and son-in-law to the Kaiser. You are a reigning duke with vast lands. You must balance your deep-seated loyalty to the Hohenzollern dynasty against the pragmatic need to preserve your own duchy and its people.",
+                baron: "Baron von Krupp of Essen",
+                baronDesc: "You are the head of the Krupp industrial dynasty, the 'Cannon Kings' of Germany. Your factories are the arsenal of the Empire, giving you immense economic power. However, this makes you entirely dependent on government contracts and a prime target for worker unrest.",
+                baroness: "Princess Evelyn Blücher",
+                baronessDesc: "An English aristocrat married to a German prince, you are an outsider at the Imperial Court. Your diary is your only confidant as you observe the war with a critical, bilingual eye. Your loyalty is dangerously torn between your birth country and your new home.",
+                farmer: "Matthias Bauer, a Tenant Farmer",
+                farmerDesc: "You work land owned by the Duke, and your life is tied to the soil and the seasons. You have no title and little wealth. The war is not about glory; it's about your sons being conscripted, your horses requisitioned, and your family's survival through the coming hunger.",
+                
+                wealth: "Wealth",
+                influence: "Influence", 
+                safety: "Safety",
+                honor: "Honor",
+                politicalAlignment: "Politics",
+                militarySupport: "Military",
+                workerSupport: "Workers",
+                continue: "Continue",
+                restart: "Start New Life",
+                gameOver: "Your story has ended",
+                home: "Return to Beginning",
+                gameComplete: "You have survived the turbulent years of 1914-1930!",
+                characterIntro: "The year is 1914. The German Empire is at the height of its power, but the winds of change are blowing. As a figure in this rigid society, you must navigate the most turbulent period in modern history. Your choices will determine whether your family survives the Great War, revolutions, economic collapse, and the rise of new ideologies."
+            },
+            kazakh: {
+                languageSelection: "Тілді таңдаңыз:",
+                english: "Ағылшын тілі",
+                kazakh: "Қазақ тілі",
+                russian: "Орыс тілі",
+                characterSelection: "Өз тұлғаңызды таңдаңыз:",
+                crownPrince: "Пруссия принці Вильгельм",
+                crownPrinceDesc: "Германия тағының мұрагері ретінде сіз ұлттың әскери-аристократиялық дәстүрінің бет-бейнесісіз. Сіз реакциялық көзқарастарыңызбен және әскери сән-салтанатқа деген сүйіспеншілігіңізбен танымалсыз. Сіздің әрбір қадамыңыз бақылауда, және сіздің лауазымыңыз сізді революционерлердің нысанасына айналдырады.",
+                duke: "Брауншвейг герцогы Эрнст Август",
+                dukeDesc: "Ганновер үйінің басшысы және Кайзердің күйеу баласы. Сіз кең байтақ жері бар билеуші герцогсыз. Сіз Гогенцоллерн әулетіне деген терең адалдығыңыз бен өз герцогтығыңызды және оның халқын сақтап қалу қажеттілігі арасында тепе-теңдікті сақтауыңыз керек.",
+                baron: "Эссендегі Крупп бароны",
+                baronDesc: "Сіз Германияның 'Зеңбірек патшалары' Крупп өнеркәсіптік династиясының басшысысыз. Сіздің зауыттарыңыз - Империяның арсеналы, бұл сізге орасан зор экономикалық қуат береді. Алайда, бұл сізді үкіметтік келісімшарттарға толықтай тәуелді етеді және жұмысшылар наразылығының басты нысанасына айналдырады.",
+                baroness: "Ханшайым Эвелин Блюхер",
+                baronessDesc: "Неміс ханзадасына тұрмысқа шыққан ағылшын ақсүйегі, сіз Императорлық сарайда бөгде адамсыз. Сіздің күнделігіңіз - соғысты сыни, екітілді көзбен бақылайтын жалғыз сырласыңыз. Сіздің адалдығыңыз туған еліңіз бен жаңа үйіңіздің арасында қауіпті түрде бөлінген.",
+                farmer: "Маттиас Бауэр, Жалдамалы Фермер",
+                farmerDesc: "Сіз Герцогқа тиесілі жерді өңдейсіз, сіздің өміріңіз топырақпен және жыл мезгілдерімен байланысты. Сізде атақ та, байлық та жоқ. Соғыс сіз үшін даңқ емес; бұл сіздің ұлдарыңыздың әскерге шақырылуы, аттарыңыздың реквизициялануы және отбасыңыздың алдағы аштықтан аман қалуы.",
+                
+                wealth: "Байлық",
+                influence: "Ықпал",
+                safety: "Қауіпсіздік", 
+                honor: "Намыс",
+                politicalAlignment: "Саясат",
+                militarySupport: "Әскер",
+                workerSupport: "Жұмысшылар",
+                continue: "Жалғастыру",
+                restart: "Жаңа өмір бастау",
+                gameOver: "Сіздің тарихыңыз аяқталды",
+                home: "Басына оралу",
+                gameComplete: "Сіз 1914-1930 жылдар аралығындағы тұрақсыз кезеңдерден аман қалдыңыз!",
+                characterIntro: "1914 жыл. Неміс империясы өз күшінің шыңында, бірақ өзгеріс желдері соғып тұр. Осы қатаң қоғамның бір тұлғасы ретінде, сіз қазіргі заман тарихындағы ең тұрақсыз кезеңдерді басынан өтуіңіз керек. Сіздің таңдауларыңыз отбасыңыздың аман қалуын анықтайды."
+            },
+            russian: {
+                languageSelection: "Выберите язык:",
+                english: "Английский",
+                kazakh: "Казахский",
+                russian: "Русский",
+                characterSelection: "Выберите вашу личность:",
+                crownPrince: "Наследный принц Вильгельм Прусский",
+                crownPrinceDesc: "Как наследник германского престола, вы являетесь лицом военно-аристократической традиции нации. Вы известны своими реакционными взглядами и любовью к военной пышности. За каждым вашим шагом следят, и ваше положение делает вас мишенью для революционеров.",
+                duke: "Герцог Эрнст Август Брауншвейгский",
+                dukeDesc: "Глава Ганноверского дома и зять кайзера. Вы - правящий герцог с обширными землями. Вы должны балансировать между глубокой преданностью династии Гогенцоллернов и прагматичной необходимостью сохранить свое герцогство и его народ.",
+                baron: "Барон Крупп фон Эссен",
+                baronDesc: "Вы - глава промышленной династии Крупп, 'Пушечных королей' Германии. Ваши заводы - арсенал Империи, что дает вам огромную экономическую мощь. Однако это делает вас полностью зависимым от правительственных контрактов и главной мишенью для рабочих волнений.",
+                baroness: "Княгиня Эвелин Блюхер",
+                baronessDesc: "Английская аристократка, вышедшая замуж за немецкого князя, вы - чужая при Императорском дворе. Ваш дневник - ваш единственный доверенный, с которым вы делитесь своими критическими наблюдениями о войне. Ваша верность опасно разрывается между родиной и новым домом.",
+                farmer: "Маттиас Бауэр, Фермер-арендатор",
+                farmerDesc: "Вы работаете на земле, принадлежащей герцогу, и ваша жизнь связана с почвой и временами года. У вас нет титула и мало богатства. Война - это не о славе; это о том, что ваших сыновей призывают, ваших лошадей реквизируют, а ваша семья должна выжить в грядущем голоде.",
+
+                wealth: "Богатство",
+                influence: "Влияние",
+                safety: "Безопасность",
+                honor: "Честь",
+                politicalAlignment: "Политика",
+                militarySupport: "Армия",
+                workerSupport: "Рабочие",
+                continue: "Продолжить",
+                restart: "Начать новую жизнь",
+                gameOver: "Ваша история окончена",
+                home: "Вернуться к началу",
+                gameComplete: "Вы пережили бурные годы 1914-1930!",
+                characterIntro: "1914 год. Германская империя находится на пике своего могущества, но дуют ветры перемен. Как фигура в этом жестком обществе, вы должны пережить самый бурный период в современной истории. Ваши решения определят, выживет ли ваша семья."
+            }
+        };
+
+        // === SCENARIO DATA ===
+
+        /**
+         * Scenarios for the noble characters (Prince, Duke, Baron, Baroness)
+         */
+        const nobleScenarios = [
+            {
+                id: 'war_begins',
+                year: 1914,
+                season: { english: 'Summer', kazakh: 'Жаз', russian: 'Лето' },
+                historicalContext: { // EXPANDED
+                    english: "The 'July Crisis' following Archduke Ferdinand's assassination has spiraled out of control. Germany's 'blank cheque' to Austria-Hungary, coupled with rigid mobilization plans (especially the Schlieffen Plan targeting France via Belgium), has ignited a European powder keg. A fervent nationalism, the 'Spirit of 1914,' grips the populace, fueled by propaganda and a belief in a short, decisive war. The Reichstag, including most Social Democrats, has voted for war credits under the banner of 'Burgfrieden' (castle truce).",
+                    kazakh: "Эрцгерцог Фердинандтың өлімінен кейінгі 'Шілде дағдарысы' бақылаудан шығып кетті. Германияның Австро-Венгрияға берген 'ашық чегі' және қатаң мобилизация жоспарлары (әсіресе Бельгия арқылы Францияға бағытталған Шлиффен жоспары) Еуропалық оқ-дәрі бөшкесін тұтатты. Пропагандамен және қысқа, шешуші соғысқа деген сеніммен өршітілген '1914 жыл рухы' деп аталатын жалынды ұлтшылдық халықты жаулап алды. Рейхстаг, көптеген социал-демократтарды қоса алғанда, 'Burgfrieden' (қамал татулығы) туы астында соғыс несиелеріне дауыс берді.",
+                    russian: "'Июльский кризис' после убийства эрцгерцога Фердинанда вышел из-под контроля. 'Карт-бланш', выданный Германией Австро-Венгрии, вкупе с жесткими мобилизационными планами (особенно планом Шлиффена, нацеленным на Францию через Бельгию), поджег европейскую пороховую бочку. Пламенный национализм, 'Дух 1914 года', охватил население, подогреваемый пропагандой и верой в короткую, решительную войну. Рейхстаг, включая большинство социал-демократов, проголосовал за военные кредиты под лозунгом 'Burgfrieden' (крепостного мира)."
+                },
+                title: {
+                    english: "The Call to Arms",
+                    kazakh: "Қару-жараққа шақыру",
+                    russian: "Призыв к Войне"
+                },
+                text: { // REWRITTEN FOR CLARITY
+                    english: "The peaceful summer air on your estate feels tense. Suddenly, the rarely used telephone rings sharply. A few minutes later, your steward rushes into your study, out of breath and holding a telegram. 'Your Highness/Lordship,' he pants, 'It's official! Mobilization! We are at war with Russia and France!' Outside, the village church bells ring urgently – a call to war, not prayer. A strong wave of patriotism is sweeping the country. The military leaders expect the nobility to show strong, public support immediately. What do you do now?",
+                    kazakh: "Жазғы тыныш ауа сіздің иелігіңізде шиеленісті сезіледі. Кенеттен сирек қолданылатын телефон қатты шыр етеді. Бірнеше минуттан кейін басқарушыңыз деміге кабинетіңізге жүгіріп кіріп, қолында телеграмма ұстап тұр. 'Мәртебелім/Лордым,' деп демін басады ол, 'Бұл ресми! Мобилизация! Біз Ресеймен және Франциямен соғыстамыз!' Сыртта ауыл шіркеуінің қоңыраулары шұғыл соғып жатыр – бұл дұғаға емес, соғысқа шақыру. Елді күшті патриоттық толқын жаулап алуда. Әскери басшылар ақсүйектерден дереу күшті, көпшілік алдында қолдау көрсетуін күтеді. Енді не істейсіз?",
+                    russian: "Мирный летний воздух в вашем поместье кажется напряженным. Внезапно резко звонит редко используемый телефон. Через несколько минут ваш управляющий вбегает в кабинет, запыхавшись и держа телеграмму. 'Ваше Высочество/Сиятельство,' - задыхаясь, говорит он, - 'Это официально! Мобилизация! Мы в состоянии войны с Россией и Францией!' Снаружи срочно звонят деревенские колокола — призыв к войне, а не к молитве. Сильная волна патриотизма охватывает страну. Военное руководство ожидает от дворянства немедленной сильной публичной поддержки. Что вы предпримете?"
+                },
+                choices: [ // Slightly tweaked
+                    {
+                        text: {
+                            english: "For Kaiser and Fatherland! Personally enlist and rally your people.",
+                            kazakh: "Кайзер мен Отан үшін! Жеке тіркеліп, халқыңызды жинау.",
+                            russian: "За Кайзера и Отечество! Лично вступить в армию и сплотить своих людей."
+                        },
+                        effects: { wealthValue: 0, influenceValue: 1, safetyValue: -1, honorValue: 1, militarySupport: 1, workerSupport: -1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Duty calls. Provide significant financial support and resources from your estates.",
+                            kazakh: "Міндет шақырады. Иеліктеріңізден елеулі қаржылық қолдау мен ресурстар беру.",
+                            russian: "Долг зовет. Предоставить значительную финансовую поддержку и ресурсы из ваших поместий."
+                        },
+                        effects: { wealthValue: -1, influenceValue: 1, safetyValue: 0, honorValue: 0, militarySupport: 1, workerSupport: 0 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "This path leads to ruin. Use connections to shield your family.",
+                            kazakh: "Бұл жол күйреуге апарады. Отбасыңызды қорғау үшін байланыстарды пайдалану.",
+                            russian: "Этот путь ведет к гибели. Использовать связи, чтобы оградить свою семью."
+                        },
+                        effects: { wealthValue: 0, influenceValue: -1, safetyValue: 1, honorValue: -1, militarySupport: -1, workerSupport: 1 },
+                        requirements: 'influence'
+                    }
+                ]
+            },
+            {
+                id: 'winter_1914',
+                year: 1914,
+                season: { english: 'Winter', kazakh: 'Қыс', russian: 'Зима' },
+                historicalContext: { // EXPANDED
+                    english: "The Schlieffen Plan has failed. The 'Race to the Sea' ended not in flanking maneuvers but in a stalemate line of trenches stretching from Switzerland to the North Sea. On the Eastern Front, initial victories like Tannenberg are costly, and the vast Russian spaces swallow armies. At home, the 'Kriegswirtschaft' (war economy) begins, with Walter Rathenau organizing resource allocation. Food supplies tighten due to the British naval blockade and prioritization of the army.",
+                    kazakh: "Шлиффен жоспары сәтсіздікке ұшырады. 'Теңізге жарыс' флангтық маневрлермен емес, Швейцариядан Солтүстік теңізге дейін созылған окоптардың тығырыққа тірелген желісімен аяқталды. Шығыс майданда Танненберг сияқты бастапқы жеңістер қымбатқа түседі, ал кең Ресей кеңістігі армияларды жұтып қояды. Елде Вальтер Ратенаудың ресурстарды бөлуді ұйымдастыруымен 'Kriegswirtschaft' (соғыс экономикасы) басталады. Британдық теңіз блокадасы және армияға басымдық беру салдарынан азық-түлікпен қамтамасыз ету қиындайды.",
+                    russian: "План Шлиффена провалился. 'Бег к морю' закончился не фланговыми маневрами, а тупиковой линией окопов, протянувшейся от Швейцарии до Северного моря. На Восточном фронте первоначальные победы, такие как Танненберг, обходятся дорого, а необъятные русские просторы поглощают армии. Дома начинается 'Kriegswirtschaft' (военная экономика), Вальтер Ратенау организует распределение ресурсов. Продовольственное снабжение ухудшается из-за британской морской блокады и приоритета армии."
+                },
+                title: {
+                    english: "The Mire of War",
+                    kazakh: "Соғыс Батпағы",
+                    russian: "Трясина Войны"
+                },
+                text: { // EXPANDED
+                    english: "The autumn leaves have fallen, but the soldiers are not home. Instead, grim letters arrive detailing the horrors of trench warfare: mud, rats, constant shelling. The quick victory promised in August is a distant memory. Back on your estate, the first real hardships bite. Grain requisitions for the army leave little for your tenants. Coal is scarce. Mutterings of discontent grow louder in the villages. How do you respond to the darkening mood?",
+                    kazakh: "Күзгі жапырақтар түсті, бірақ сарбаздар үйге оралмады. Оның орнына окоп соғысының сұмдықтарын егжей-тегжейлі баяндайтын қасіретті хаттар келеді: батпақ, тышқандар, үнемі атқылау. Тамызда уәде етілген жылдам жеңіс - алыстағы естелік. Сіздің иелігіңізде алғашқы нақты қиындықтар басталады. Әскерге арналған астық реквизициялары сіздің жалға алушыларыңызға аз қалдырады. Көмір тапшы. Ауылдарда наразылық күңкілі күшейеді. Қараңғыланған көңіл-күйге қалай жауап бересіз?",
+                    russian: "Осенние листья опали, но солдаты не вернулись домой. Вместо этого приходят мрачные письма, подробно описывающие ужасы окопной войны: грязь, крысы, постоянные обстрелы. Быстрая победа, обещанная в августе, — далекое воспоминание. В вашем поместье начинаются первые настоящие трудности. Реквизиции зерна для армии оставляют мало для ваших арендаторов. Угля не хватает. Ропот недовольства в деревнях становится громче. Как вы отреагируете на мрачнеющее настроение?"
+                },
+                choices: [
+                    {
+                        text: {
+                            english: "Noblesse Oblige. Open your personal reserves to feed the hungry.",
+                            kazakh: "Ақсүйектік міндеттеме. Аш қалғандарды тамақтандыру үшін жеке қорларыңызды ашу.",
+                            russian: "Noblesse Oblige. Открыть свои личные запасы, чтобы накормить голодных."
+                        },
+                        effects: { wealthValue: -1, influenceValue: 1, safetyValue: 1, honorValue: 1, militarySupport: -1, workerSupport: 1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Order must prevail. Impose strict rationing and use your authority.",
+                            kazakh: "Тәртіп сақталуы керек. Қатаң үнемдеу енгізіп, билігіңізді пайдалану.",
+                            russian: "Порядок должен восторжествовать. Ввести строгую нормировку и использовать свою власть."
+                        },
+                        effects: { wealthValue: 0, influenceValue: -1, safetyValue: -1, honorValue: -1, militarySupport: 1, workerSupport: -1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Innovation is key. Organize collective farming efforts to maximize production.",
+                            kazakh: "Инновация - кілт. Өндірісті барынша арттыру үшін ұжымдық егіншілік жұмыстарын ұйымдастыру.",
+                            russian: "Инновации — это ключ. Организовать коллективные усилия по ведению сельского хозяйства для максимизации производства."
+                        },
+                        effects: { wealthValue: -1, influenceValue: 1, safetyValue: 1, honorValue: 0, militarySupport: 0, workerSupport: 1 },
+                        requirements: null
+                    }
+                ]
+            },
+            {
+                id: 'us_enters',
+                year: 1917,
+                season: { english: 'Spring', kazakh: 'Көктем', russian: 'Весна' },
+                historicalContext: { // EXPANDED
+                    english: "Germany's gamble on unrestricted submarine warfare, intended to starve Britain, has backfired spectacularly. The sinking of neutral ships, coupled with the intercepted Zimmermann Telegram (proposing a German-Mexican alliance against the US), has pushed President Wilson to abandon neutrality. America, with its vast industrial might and fresh manpower, declares war. The strategic balance tips decisively against the Central Powers.",
+                    kazakh: "Германияның Ұлыбританияны аштыққа ұшыратуға бағытталған шектеусіз сүңгуір қайық соғысы ойыны керемет түрде кері әсер етті. Бейтарап кемелердің батырылуы және АҚШ-қа қарсы Германия-Мексика одағын ұсынған Циммерман телеграммасының ұсталуы Президент Вильсонды бейтараптықтан бас тартуға итермеледі. Америка өзінің орасан зор өнеркәсіптік қуатымен және жаңа адам күшімен соғыс жариялайды. Стратегиялық тепе-теңдік Орталық державаларға қарсы шешуші түрде ауытқиды.",
+                    russian: "Авантюра Германии с неограниченной подводной войной, призванная задушить Британию голодом, обернулась катастрофой. Потопление нейтральных судов вкупе с перехваченной телеграммой Циммермана (предлагавшей германо-мексиканский союз против США) подтолкнули президента Вильсона отказаться от нейтралитета. Америка, с ее огромной промышленной мощью и свежими людскими ресурсами, объявляет войну. Стратегический баланс решительно склоняется против Центральных держав."
+                },
+                title: {
+                    english: "The Yanks Are Coming",
+                    kazakh: "Янкилер Келеді",
+                    russian: "Янки Идут"
+                },
+                text: { // EXPANDED
+                    english: "The dreaded news arrives via telegraph: America has entered the war. While official propaganda dismisses the 'dollar soldiers,' you understand the implications. Fresh troops, endless supplies, and crushing industrial capacity will soon bolster the exhausted Allies. Whispers of doubt spread through your household staff and tenants. The war seems endless, and now, perhaps, unwinnable. How do you address this devastating blow to morale?",
+                    kazakh: "Телеграф арқылы қорқынышты хабар келеді: Америка соғысқа кірісті. Ресми пропаганда 'доллар сарбаздарын' елемесе де, сіз оның салдарын түсінесіз. Жаңа әскерлер, шексіз жабдықтар және күйретуші өнеркәсіптік әлеует жақында шаршаған Одақтастарды күшейтеді. Күдік сыбырлары сіздің үй қызметшілеріңіз бен жалға алушыларыңыз арасында таралады. Соғыс шексіз болып көрінеді, енді, мүмкін, жеңу мүмкін емес шығар. Рухқа түскен бұл жойқын соққыға қалай жауап бересіз?",
+                    russian: "Ужасная новость приходит по телеграфу: Америка вступила в войну. Хотя официальная пропаганда отмахивается от 'долларовых солдат', вы понимаете последствия. Свежие войска, бесконечные поставки и сокрушительная промышленная мощь вскоре укрепят измотанных союзников. Шепот сомнений распространяется среди вашей прислуги и арендаторов. Война кажется бесконечной, а теперь, возможно, и невыигрышной. Как вы отреагируете на этот разрушительный удар по моральному духу?"
+                },
+                choices: [ // Slightly tweaked
+                    {
+                        text: {
+                            english: "Defiance! Dismiss it as propaganda and host patriotic rallies.",
+                            kazakh: "Қарсылық! Мұны пропаганда деп санап, патриоттық митингілер өткізу.",
+                            russian: "Неповиновение! Отмахнуться как от пропаганды и устроить патриотические митинги."
+                        },
+                        effects: { influenceValue: 1, safetyValue: 0, honorValue: 1, wealthValue: -1, militarySupport: 1, workerSupport: -1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Prudence. Quietly acknowledge the gravity, conserve resources.",
+                            kazakh: "Сақтық. Жағдайдың ауырлығын үндемей мойындап, ресурстарды үнемдеу.",
+                            russian: "Осмотрительность. Тихо признать серьезность, экономить ресурсы."
+                        },
+                        effects: { influenceValue: 0, safetyValue: 1, honorValue: 0, wealthValue: 0, militarySupport: 0, workerSupport: 0 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Realism. Secretly explore peace feelers through neutral contacts. The war is lost.",
+                            kazakh: "Реализм. Бейтарап байланыстар арқылы бейбітшілік келіссөздерін жасырын зерттеу. Соғыс жеңілді.",
+                            russian: "Реализм. Тайно изучить возможность мирных переговоров через нейтральные контакты. Война проиграна."
+                        },
+                        effects: { influenceValue: -1, safetyValue: -1, honorValue: -1, wealthValue: 0, militarySupport: -1, workerSupport: 1, politicalAlignment: -1 },
+                        requirements: 'influence'
+                    }
+                ]
+            },
+            {
+                id: 'revolution_begins',
+                year: 1917,
+                season: { english: 'Fall', kazakh: 'Күз', russian: 'Осень' },
+                historicalContext: { // EXPANDED
+                    english: "The Bolshevik Revolution in Russia has overthrown the Provisional Government. Lenin promises 'Peace, Land, and Bread,' pulling Russia out of the war (soon formalized by the Treaty of Brest-Litovsk). This victory for radical socialism electrifies left-wing movements across Europe. In Germany, weariness with the war, hunger ('Turnip Winter'), and massive casualties fuel strikes and unrest. The SPD itself has fractured, with the anti-war Independent Social Democrats (USPD) gaining support.",
+                    kazakh: "Ресейдегі большевиктер төңкерісі Уақытша үкіметті құлатты. Ленин 'Бейбітшілік, Жер және Нан' уәде етіп, Ресейді соғыстан шығарады (жақында Брест-Литовск келісімімен ресімделеді). Радикалды социализмнің бұл жеңісі бүкіл Еуропадағы солшыл қозғалыстарды жігерлендіреді. Германияда соғыстан шаршау, аштық ('Шалқан қысы') және орасан зор шығындар ереуілдер мен тәртіпсіздіктерді өршітеді. SPD-ның өзі де бөлініп, соғысқа қарсы Тәуелсіз социал-демократтар (USPD) қолдауға ие болуда.",
+                    russian: "Большевистская революция в России свергла Временное правительство. Ленин обещает 'Мир, землю и хлеб', выводя Россию из войны (что вскоре будет оформлено Брест-Литовским миром). Эта победа радикального социализма электризует левые движения по всей Европе. В Германии усталость от войны, голод ('Брюквенная зима') и огромные потери подпитывают забастовки и волнения. Сама СДПГ раскололась, антивоенная Независимая социал-демократическая партия (НСДПГ) набирает популярность."
+                },
+                title: {
+                    english: "The Red contagion",
+                    kazakh: "Қызыл жұқпа",
+                    russian: "Красная зараза"
+                },
+                text: { // EXPANDED
+                    english: "Shocking news from Petrograd dominates the newspapers: the Bolsheviks have seized power! Russia is collapsing into civil war, but the message of revolution resonates powerfully here. Crude socialist pamphlets circulate even in your conservative region. Factory workers mutter about 'Soviets' (councils), and veterans returning from the front speak bitterly of incompetent generals and needless slaughter. The foundations of the old order tremble. What is your strategy to navigate this dangerous tide?",
+                    kazakh: "Петроградтан келген таңқаларлық жаңалықтар газеттердің басты тақырыбына айналды: большевиктер билікті басып алды! Ресей азаматтық соғысқа батып барады, бірақ революция хабары мұнда қатты жаңғырық тудырады. Тіпті сіздің консервативті аймағыңызда да дөрекі социалистік парақшалар таратылуда. Зауыт жұмысшылары 'Кеңестер' туралы күңкілдейді, ал майданнан оралған ардагерлер біліксіз генералдар мен қажетсіз қырғын туралы ащы сөздер айтады. Ескі тәртіптің іргетасы шайқалуда. Осы қауіпті ағымды қалай басқарасыз?",
+                    russian: "Шокирующие новости из Петрограда доминируют в газетах: большевики захватили власть! Россия погружается в гражданскую войну, но весть о революции мощно резонирует здесь. Грубые социалистические листовки распространяются даже в вашем консервативном регионе. Фабричные рабочие бормочут о 'Советах', а ветераны, возвращающиеся с фронта, с горечью говорят о некомпетентных генералах и бессмысленной бойне. Основы старого порядка дрожат. Какова ваша стратегия, чтобы справиться с этим опасным течением?"
+                },
+                choices: [ // Slightly tweaked
+                    {
+                        text: {
+                            english: "Appease the masses. Cede some land rights, allow worker councils.",
+                            kazakh: "Бұқараны тыныштандыру. Кейбір жер құқықтарын беріп, жұмысшы кеңестеріне рұқсат ету.",
+                            russian: "Умиротворить массы. Уступить некоторые земельные права, разрешить рабочие советы."
+                        },
+                        effects: { wealthValue: -1, safetyValue: 1, honorValue: -1, influenceValue: 1, militarySupport: -1, workerSupport: 2, politicalAlignment: -1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Iron fist. Call in military police to suppress dissent and arrest agitators.",
+                            kazakh: "Темір жұдырық. Келіспеушілікті басу және агитаторларды тұтқындау үшін әскери полицияны шақыру.",
+                            russian: "Железный кулак. Вызвать военную полицию для подавления инакомыслия и ареста агитаторов."
+                        },
+                        effects: { wealthValue: 0, safetyValue: -1, honorValue: -1, influenceValue: -1, militarySupport: 1, workerSupport: -2, politicalAlignment: 1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Escape. Liquidate assets and flee to neutral Switzerland.",
+                            kazakh: "Қашу. Активтерді сатып, бейтарап Швейцарияға қашу.",
+                            russian: "Бегство. Ликвидировать активы и бежать в нейтральную Швейцарию."
+                        },
+                        effects: { wealthValue: -1, safetyValue: 2, honorValue: -1, influenceValue: -1, militarySupport: 0, workerSupport: 0 },
+                        requirements: null
+                    }
+                ]
+            }
+            // Add more noble scenarios here
+        ];
+        
+        /**
+         * Scenarios for the Farmer character
+         */
+        const farmerScenarios = [
+            {
+                id: 'f_war_begins',
+                year: 1914,
+                season: { english: 'Summer', kazakh: 'Жаз', russian: 'Лето' },
+                historicalContext: { // EXPANDED
+                    english: "The war declaration, met with cheers in the cities, arrives in your village carried by a breathless messenger. It means little of glory, but much of sacrifice. The 'Requisition Law' empowers the army to take what it needs – food, horses, and sons. Your landlord, the Duke, is a patriot, ensuring his officials will show no leniency. The harvest is barely begun, but already the shadow of war falls long across your fields.",
+                    kazakh: "Қалаларда қуанышпен қарсы алынған соғыс жариялау туралы хабар сіздің ауылыңызға деміккен хабаршымен келеді. Бұл даңқ туралы аз, бірақ құрбандық туралы көп нәрсені білдіреді. 'Реквизиция заңы' әскерге қажет нәрсені – азық-түлікті, аттарды және ұлдарды алуға мүмкіндік береді. Сіздің жер иеңіз, Герцог – патриот, оның шенеуніктерінің ешқандай жеңілдік көрсетпейтінін қамтамасыз етеді. Егін жинау енді ғана басталды, бірақ соғыстың көлеңкесі сіздің егістіктеріңізге ұзын түсіп тұр.",
+                    russian: "Объявление войны, встреченное в городах ликованием, прибывает в вашу деревню с запыхавшимся гонцом. Оно несет мало славы, но много жертв. 'Закон о реквизиции' дает армии право брать все необходимое – еду, лошадей и сыновей. Ваш землевладелец, герцог – патриот, что гарантирует безжалостность его чиновников. Урожай едва начался, но тень войны уже длинно ложится на ваши поля."
+                },
+                title: {
+                    english: "The Requisition",
+                    kazakh: "Реквизиция",
+                    russian: "Реквизиция"
+                },
+                text: { // EXPANDED
+                    english: "They arrive without warning – the Duke's officious reeve and two soldiers, their polished boots trampling your cabbage patch. The reeve consults a list. 'Matthias Bauer?' he calls out, not meeting your eye. He gestures curtly at your eldest son, Karl, barely a man. 'He comes with us.' Then, his gaze falls upon 'Max,' your sturdy draft horse, essential for the ploughing. 'And the animal.' Your wife stifles a sob in the doorway. Losing Karl is heartbreak; losing Max means starvation next spring. What can you possibly do?",
+                    kazakh: "Олар ескертусіз келеді – Герцогтың өркөкірек басқарушысы және екі сарбаз, олардың жалтыраған етіктері сіздің қырыққабат бақшаңызды таптайды. Басқарушы тізімді қарайды. 'Маттиас Бауэр?' деп шақырады ол, сіздің көзіңізге қарамай. Ол жаныңызда тұрған, енді ғана ер жеткен үлкен ұлыңыз Карлға қысқаша нұсқайды. 'Ол бізбен кетеді.' Содан кейін оның көзі сіздің мықты, соқаға қажетті жұмыс атыңыз 'Максқа' түседі. 'Және жануар.' Әйеліңіз есік алдында өксігін басады. Карлдан айырылу – жүрек жарасы; Макстан айырылу келесі көктемде аштықты білдіреді. Сіз не істей аласыз?",
+                    russian: "Они прибывают без предупреждения – напыщенный управляющий герцога и двое солдат, их начищенные сапоги топчут вашу капустную грядку. Управляющий сверяется со списком. 'Маттиас Бауэр?' - выкрикивает он, не глядя вам в глаза. Он коротко указывает на вашего старшего сына, Карла, едва ставшего мужчиной. 'Он идет с нами'. Затем его взгляд падает на 'Макса', вашу крепкую рабочую лошадь, необходимую для пахоты. 'И животное'. Ваша жена подавляет рыдание в дверях. Потерять Карла – горе; потерять Макса – голод следующей весной. Что вы вообще можете сделать?"
+                },
+                choices: [
+                    {
+                        text: {
+                            english: "Defy them! Shout that it's unjust! They can't take both!",
+                            kazakh: "Оларға қарсы шығу! Бұл әділетсіздік деп айқайлау! Олар екеуін де ала алмайды!",
+                            russian: "Бросить им вызов! Кричать, что это несправедливо! Они не могут забрать обоих!"
+                        },
+                        effects: { wealthValue: -1, influenceValue: 0, safetyValue: -1, honorValue: 0, militarySupport: -1, workerSupport: 1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Plead for mercy. Offer your older, less useful horse instead.",
+                            kazakh: "Мейірім сұрау. Орнына ескі, аз пайдалы атыңызды ұсыну.",
+                            russian: "Умолять о пощаде. Предложить свою старую, менее полезную лошадь взамен."
+                        },
+                        effects: { wealthValue: -1, influenceValue: 0, safetyValue: 0, honorValue: -1, militarySupport: 0, workerSupport: 0 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Submit in silence. Give them what they demand.",
+                            kazakh: "Үндемей бағыну. Олардың талап еткенін беру.",
+                            russian: "Подчиниться молча. Отдать им то, что они требуют."
+                        },
+                        effects: { wealthValue: -1, influenceValue: 0, safetyValue: 1, honorValue: -1, militarySupport: 1, workerSupport: -1 },
+                        requirements: null
+                    }
+                ]
+            },
+            {
+                id: 'f_winter_1914',
+                year: 1914,
+                season: { english: 'Winter', kazakh: 'Қыс', russian: 'Зима' },
+                historicalContext: { // EXPANDED
+                    english: "The initial war enthusiasm has frozen along with the fields. The British naval blockade cuts off vital imports – fertilizer for your fields, fodder for livestock, and food for the cities. The army requisitions continue relentlessly. Prices for necessities skyrocket. This is just the beginning; whispers predict a harsh 'Turnip Winter' is coming if the war doesn't end soon.",
+                    kazakh: "Бастапқы соғыс ынтасы егістіктермен бірге қатып қалды. Британдық теңіз блокадасы өмірлік маңызды импортты – егістіктеріңізге арналған тыңайтқышты, малға арналған жемді және қалаларға арналған азық-түлікті тоқтатады. Әскер реквизициялары тоқтаусыз жалғасуда. Қажетті заттардың бағасы шарықтап кетті. Бұл тек бастамасы; егер соғыс жақында аяқталмаса, қатал 'Шалқан қысы' келеді деп сыбырлайды.",
+                    russian: "Первоначальный военный энтузиазм замерз вместе с полями. Британская морская блокада отрезает жизненно важный импорт – удобрения для ваших полей, корм для скота и продовольствие для городов. Армейские реквизиции продолжаются неумолимо. Цены на предметы первой необходимости взлетают до небес. Это только начало; шепотом предсказывают суровую 'Брюквенную зиму', если война скоро не закончится."
+                },
+                title: {
+                    english: "The Hunger Sets In",
+                    kazakh: "Аштық Басталады",
+                    russian: "Наступает Голод"
+                },
+                text: { // EXPANDED
+                    english: "The wind howls outside your small cottage. Inside, the fire burns low, and the children huddle together, coughing. Your wife's face is etched with worry. The grain stores are nearly empty, thanks to the army. Your last hidden reserve is a small sack of potatoes beneath the loose floorboard. It's not much, barely enough for your own family for a few weeks. What do you do with this precious hoard?",
+                    kazakh: "Кішкентай үйіңіздің сыртында жел ұлиды. Ішінде от баяу жанып тұр, ал балалар бір-біріне тығылып, жөтеліп жатыр. Әйеліңіздің жүзі уайымға толы. Әскердің кесірінен астық қоймалары бос қалуға жақын. Сіздің соңғы жасырылған қорыңыз – бос еден тақтайының астындағы кішкентай картоп қабы. Бұл көп емес, өз отбасыңызға бірнеше аптаға әрең жетеді. Осы қымбат қазынамен не істейсіз?",
+                    russian: "Ветер воет за стенами вашей маленькой хижины. Внутри огонь горит тускло, а дети жмутся друг к другу, кашляя. Лицо вашей жены изрезано тревогой. Запасы зерна почти пусты, спасибо армии. Ваш последний спрятанный резерв — небольшой мешок картошки под шаткой половицей. Это немного, едва хватит вашей семье на несколько недель. Что вы сделаете с этим драгоценным запасом?"
+                },
+                choices: [ // Slightly tweaked
+                    {
+                        text: {
+                            english: "Share half with your sick neighbor. We must help each other.",
+                            kazakh: "Жартысын ауру көршіңізбен бөлісу. Біз бір-бірімізге көмектесуіміз керек.",
+                            russian: "Поделиться половиной с больным соседом. Мы должны помогать друг другу."
+                        },
+                        effects: { wealthValue: -1, influenceValue: 0, safetyValue: 0, honorValue: 1, militarySupport: 0, workerSupport: 1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Keep it all. My family comes first, always.",
+                            kazakh: "Бәрін сақтау. Менің отбасым бірінші кезекте, әрқашан.",
+                            russian: "Оставить все. Моя семья важнее всего, всегда."
+                        },
+                        effects: { wealthValue: 0, influenceValue: 0, safetyValue: 0, honorValue: -1, militarySupport: 0, workerSupport: -1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Risk the gallows. Try poaching from the Duke's forest tonight.",
+                            kazakh: "Дарға асылу қаупіне бару. Бүгін түнде Герцогтың орманынан браконьерлікпен айналысуға тырысу.",
+                            russian: "Рискнуть виселицей. Попытаться этой ночью заняться браконьерством в лесу герцога."
+                        },
+                        effects: { wealthValue: 1, influenceValue: 0, safetyValue: -1, honorValue: 0, militarySupport: 0, workerSupport: 0 },
+                        requirements: null
+                    }
+                ]
+            },
+            {
+                id: 'f_revolution_begins',
+                year: 1917,
+                season: { english: 'Fall', kazakh: 'Күз', russian: 'Осень' },
+                historicalContext: { // EXPANDED
+                    english: "The unbelievable news arrives from Russia: the Tsar is gone, replaced by revolutionaries! This electrifies Germany. War weariness, starvation, and anger over inequality are boiling over. Soldiers are deserting the collapsing Eastern Front. In the nearby town, factory workers are forming 'councils' (Räte), inspired by the Russian Soviets, and talking openly of seizing land and factories. The old authorities seem paralyzed.",
+                    kazakh: "Ресейден сенгісіз жаңалық келеді: Патша жоқ, оның орнын революционерлер басты! Бұл Германияны дүр сілкіндіреді. Соғыстан шаршау, аштық және теңсіздікке деген ашу-ыза қайнап тұр. Шығыс майданнан сарбаздар қашып жатыр. Жақын маңдағы қалада зауыт жұмысшылары Ресей Кеңестерінен шабыт алып, 'кеңестер' (Räte) құрып, жер мен фабрикаларды басып алу туралы ашық айтуда. Ескі билік сал болып қалғандай.",
+                    russian: "Приходит невероятная весть из России: Царя больше нет, его сменили революционеры! Это электризует Германию. Усталость от войны, голод и гнев из-за неравенства закипают. Солдаты дезертируют с рушащегося Восточного фронта. В соседнем городе фабричные рабочие формируют 'советы' (Räte), вдохновленные русскими Советами, и открыто говорят о захвате земли и фабрик. Старые власти кажутся парализованными."
+                },
+                title: {
+                    english: "The Red Flag Flies",
+                    kazakh: "Қызыл Ту Желбірейді",
+                    russian: "Красный Флаг Взметнулся"
+                },
+                text: { // EXPANDED
+                    english: "One evening, your neighbor pulls you aside, eyes wide. 'There's a meeting tonight,' he whispers, 'In Gruber's old barn. A man from the city... he speaks of a new world. No more Dukes, no more rent. The land for those who till it!' You can hear the fear and hope in his voice. Attending is dangerous; the Duke's men still patrol. But the promise... a life without bowing and scraping... it's intoxicating. Do you risk going?",
+                    kazakh: "Бір кеште көршіңіз сізді шетке тартып, көздері шарасынан шығып кете жаздайды. 'Бүгін түнде жиналыс болады,' деп сыбырлайды ол, 'Грубердің ескі қорасында. Қаладан келген адам... ол жаңа әлем туралы айтады. Енді Герцогтар жоқ, жалдау ақысы жоқ. Жерді оны өңдейтіндерге!' Сіз оның даусынан қорқыныш пен үмітті естисіз. Қатысу қауіпті; Герцогтың адамдары әлі де күзетте. Бірақ уәде... бас имей, жағымпазданбай өмір сүру... бұл мас қылатын ой. Баруға тәуекел етесіз бе?",
+                    russian: "Одним вечером сосед отводит вас в сторону, его глаза расширены. 'Сегодня ночью собрание,' - шепчет он, - 'В старом сарае Грубера. Человек из города... он говорит о новом мире. Больше никаких герцогов, никакой арендной платы. Земля тем, кто ее обрабатывает!' Вы слышите страх и надежду в его голосе. Присутствовать опасно; люди герцога все еще патрулируют. Но обещание... жизнь без поклонов и унижений... оно опьяняет. Рискнете ли вы пойти?"
+                },
+                choices: [ // Slightly tweaked
+                    {
+                        text: {
+                            english: "Yes! Go and listen. It's time for change!",
+                            kazakh: "Иә! Барып тыңдау. Өзгеріс уақыты келді!",
+                            russian: "Да! Пойти и послушать. Время перемен!"
+                        },
+                        effects: { wealthValue: 0, influenceValue: 1, safetyValue: -1, honorValue: 0, militarySupport: -1, workerSupport: 2, politicalAlignment: -1 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "No. Keep your head down. This talk only brings trouble.",
+                            kazakh: "Жоқ. Басыңызды төмен ұстаңыз. Бұл әңгіме тек қиындық әкеледі.",
+                            russian: "Нет. Держаться в тени. Эти разговоры принесут только беду."
+                        },
+                        effects: { wealthValue: 0, influenceValue: 0, safetyValue: 1, honorValue: 0, militarySupport: 0, workerSupport: 0 },
+                        requirements: null
+                    },
+                    {
+                        text: {
+                            english: "Inform the Duke's reeve. Loyalty might be rewarded.",
+                            kazakh: "Герцогтың басқарушысына хабарлау. Адалдық марапатталуы мүмкін.",
+                            russian: "Сообщить управляющему герцога. Лояльность может быть вознаграждена."
+                        },
+                        effects: { wealthValue: 0, influenceValue: 0, safetyValue: 1, honorValue: 1, militarySupport: 1, workerSupport: -2, politicalAlignment: 1 },
+                        requirements: null
+                    }
+                ]
+            }
+            // Add more farmer scenarios here
+        ];
+
+
+        // === CORE GAME FUNCTIONS ===
+
+        /**
+         * Resets the game to its initial state and shows language selection
+         */
+        function initGame() {
+            // Reset state
+            gameState = {
+                language: null,
+                character: null,
+                year: 1914,
+                season: 'Summer',
+                wealthValue: 3,
+                influenceValue: 3,
+                safetyValue: 3,
+                honorValue: 3,
+                politicalAlignment: 4,
+                militarySupport: 0,
+                workerSupport: 0,
+                currentScenario: 0,
+                isAlive: true,
+                warPeriod: true
+            };
+            showLanguageSelection();
+        }
+
+        /**
+         * Renders the Home/Restart button
+         */
+        function goHome() {
+            initGame();
+        }
+
+        /**
+         * Renders the language selection screen
+         */
+        function showLanguageSelection() {
+            gameContent.innerHTML = `
+                <div class="language-selection">
+                    <h2>${texts.english.languageSelection}</h2>
+                    <button class="language-button" onclick="selectLanguage('english')">${texts.english.english}</button>
+                    <button class="language-button" onclick="selectLanguage('kazakh')">${texts.english.kazakh}</button>
+                    <button class="language-button" onclick="selectLanguage('russian')">${texts.english.russian}</button>
+                </div>
+            `;
+        }
+
+        /**
+         * Sets the language and shows the character selection screen
+         */
+        function selectLanguage(lang) {
+            gameState.language = lang;
+            showCharacterSelection();
+        }
+
+        /**
+         * Renders the character selection screen
+         */
+        function showCharacterSelection() {
+            const t = texts[gameState.language]; 
+            
+            gameContent.innerHTML = `
+                <div class="character-selection">
+                    <h2>${t.characterSelection}</h2>
+                    <p>${t.characterIntro}</p>
+
+                    <div class="character-card-container">
+                    
+                        <!-- Character 1: Crown Prince -->
+                        <div class="character-card" onclick="selectCharacter('crownPrince')">
+                            <!-- # ADD YOUR CROWN PRINCE IMAGE URL IN THE SRC ATTRIBUTE BELOW -->
+                            <img src="untitled folder/Kronprinz_Wilhelm_1._Leib-Husarenregiment_1_250x348.png" alt="${t.crownPrince}">
+                            <div class="character-card-content">
+                                <h3 class="character-title">${t.crownPrince}</h3>
+                                <p class="character-description">${t.crownPrinceDesc}</p>
+                                <div class="character-stats">
+                                    <span class="stat-item">${t.influence}: 4</span>
+                                    <span class="stat-item">${t.safety}: 2</span>
+                                    <span class="stat-item">${t.honor}: 3</span>
+                                    <span class="stat-item">${t.wealth}: 3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Character 2: Duke -->
+                        <div class="character-card" onclick="selectCharacter('duke')">
+                            <!-- # ADD YOUR DUKE IMAGE URL IN THE SRC ATTRIBUTE BELOW -->
+                            <img src="untitled folder/250px-Ernst_August_Herzog_zu_Braunschweig.jpg" alt="${t.duke}">
+                            <div class="character-card-content">
+                                <h3 class="character-title">${t.duke}</h3>
+                                <p class="character-description">${t.dukeDesc}</p>
+                                <div class="character-stats">
+                                    <span class="stat-item">${t.influence}: 3</span>
+                                    <span class="stat-item">${t.safety}: 3</span>
+                                    <span class="stat-item">${t.honor}: 2</span>
+                                    <span class="stat-item">${t.wealth}: 4</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Character 3: Baron -->
+                        <div class="character-card" onclick="selectCharacter('baron')">
+                            <!-- # ADD YOUR BARON IMAGE URL IN THE SRC ATTRIBUTE BELOW -->
+                            <img src="untitled folder/Bundesarchiv_Bild_102-12331_Gustav_Krupp_von_Bohlen_und_Halbach_1_250x347.png" alt="${t.baron}">
+                            <div class="character-card-content">
+                                <h3 class="character-title">${t.baron}</h3>
+                                <p class="character-description">${t.baronDesc}</p>
+                                <div class="character-stats">
+                                    <span class="stat-item">${t.influence}: 2</span>
+                                    <span class="stat-item">${t.safety}: 2</span>
+                                    <span class="stat-item">${t.honor}: 1</span>
+                                    <span class="stat-item">${t.wealth}: 5</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Character 4: Baroness -->
+                        <div class="character-card" onclick="selectCharacter('baroness')">
+                            <!-- # ADD YOUR BARONESS IMAGE URL IN THE SRC ATTRIBUTE BELOW -->
+                            <img src="/Users/aknurdidarkyzy/Downloads/Evelyn-Countess-Bluecher-no-copyright-restr_small-2.jpg" alt="${t.baroness}">
+                            <div class="character-card-content">
+                                <h3 class="character-title">${t.baroness}</h3>
+                                <p class="character-description">${t.baronessDesc}</p>
+                                <div class="character-stats">
+                                    <span class="stat-item">${t.influence}: 4</span>
+                                    <span class="stat-item">${t.safety}: 3</span>
+                                    <span class="stat-item">${t.honor}: 2</span>
+                                    <span class="stat-item">${t.wealth}: 3</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Character 5: Farmer -->
+                        <div class="character-card" onclick="selectCharacter('farmer')">
+                            <!-- # ADD YOUR FARMER IMAGE URL IN THE SRC ATTRIBUTE BELOW -->
+                            <img src="/Users/aknurdidarkyzy/Downloads/images.jpg" alt="${t.farmer}">
+                            <div class="character-card-content">
+                                <h3 class="character-title">${t.farmer}</h3>
+                                <p class="character-description">${t.farmerDesc}</p>
+                                <div class="character-stats">
+                                    <span class="stat-item">${t.influence}: 1</span>
+                                    <span class="stat-item">${t.safety}: 2</span>
+                                    <span class="stat-item">${t.workerSupport}: 5</span>
+                                    <span class="stat-item">${t.wealth}: 1</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div> <!-- /character-card-container -->
+                </div>
+            `;
+        }
+
+        /**
+         * Sets the character and starting stats, then starts the game
+         */
+        function selectCharacter(char) {
+            gameState.character = char;
+            
+            // Set initial stats based on character
+            if (char === 'crownPrince') {
+                gameState.influenceValue = 4;
+                gameState.safetyValue = 2;
+                gameState.honorValue = 3;
+                gameState.wealthValue = 3;
+                gameState.politicalAlignment = 5; 
+            } else if (char === 'duke') {
+                gameState.influenceValue = 3;
+                gameState.safetyValue = 3;
+                gameState.honorValue = 2;
+                gameState.wealthValue = 4;
+                gameState.politicalAlignment = 4;
+            } else if (char === 'baron') {
+                gameState.influenceValue = 2;
+                gameState.safetyValue = 2;
+                gameState.honorValue = 1;
+                gameState.wealthValue = 5;
+                gameState.workerSupport = 1; 
+                gameState.politicalAlignment = 4;
+            } else if (char === 'baroness') {
+                gameState.influenceValue = 4;
+                gameState.safetyValue = 3;
+                gameState.honorValue = 2;
+                gameState.wealthValue = 3;
+                gameState.politicalAlignment = 2; // More moderate/critical
+            } else if (char === 'farmer') {
+                gameState.influenceValue = 1;
+                gameState.safetyValue = 2;
+                gameState.honorValue = 1; // Different kind of honor
+                gameState.wealthValue = 1;
+                gameState.politicalAlignment = 1; 
+                gameState.workerSupport = 5;
+                gameState.militarySupport = -1;
+            } 
+
+            gameState.currentScenario = 0;
+            renderGameScreen();
+        }
+
+        /**
+         * Helper function to calculate percentage for a stat bar
+         */
+        function getStatPercentage(value, max = 5) {
+            // Ensure value doesn't go below 0 for percentage calculation
+            const clampedValue = Math.max(0, value); 
+            if (clampedValue >= max) return 100;
+            return (clampedValue / max) * 100;
+        }
+
+
+        /**
+         * Renders the main game screen (stats, scenario, choices)
+         */
+        function renderGameScreen() {
+            if (!gameState.isAlive) {
+                return;
+            }
+            
+            const t = texts[gameState.language];
+            
+            let currentScenarios;
+            if (gameState.character === 'farmer') {
+                currentScenarios = farmerScenarios;
+            } else { 
+                currentScenarios = nobleScenarios;
+            }
+
+            if (gameState.currentScenario >= currentScenarios.length) {
+                showGameComplete();
+                return;
+            }
+
+            const scenario = currentScenarios[gameState.currentScenario];
+
+            // Build the HTML for the status bars
+            const wealthPercent = getStatPercentage(gameState.wealthValue);
+            const influencePercent = getStatPercentage(gameState.influenceValue);
+            const safetyPercent = getStatPercentage(gameState.safetyValue);
+            const honorPercent = getStatPercentage(gameState.honorValue);
+            // Military and Worker support can range conceptually beyond 5, 
+            // but we'll cap the bar display at 5 (100%)
+            const militaryPercent = getStatPercentage(gameState.militarySupport, 5); 
+            const workerPercent = getStatPercentage(gameState.workerSupport, 5);
+            
+            const safetyClass = gameState.safetyValue <= 1 ? 'danger' : '';
+            const wealthClass = gameState.wealthValue <= 1 ? 'danger' : '';
+            
+            let statusHTML = `
+                <div class="status-container">
+                    <!-- Column 1 -->
+                    <div>
+                        <div class="status-bar-container">
+                            <span class="status-bar-label">${t.wealth}</span>
+                            <div class="status-bar-wrapper">
+                                <div class="status-bar-fill ${wealthClass}" style="width: ${wealthPercent}%;"></div>
+                            </div>
+                        </div>
+                        <div class="status-bar-container">
+                            <span class="status-bar-label">${t.influence}</span>
+                            <div class="status-bar-wrapper">
+                                <div class="status-bar-fill" style="width: ${influencePercent}%;"></div>
+                            </div>
+                        </div>
+                        <div class="status-bar-container">
+                            <span class="status-bar-label">${t.safety}</span>
+                            <div class="status-bar-wrapper">
+                                <div class="status-bar-fill ${safetyClass}" style="width: ${safetyPercent}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column 2 -->
+                    <div>
+                        <div class="status-bar-container">
+                            <span class="status-bar-label">${t.honor}</span>
+                            <div class="status-bar-wrapper">
+                                <div class="status-bar-fill" style="width: ${honorPercent}%;"></div>
+                            </div>
+                        </div>
+                        <div class="status-bar-container">
+                            <span class="status-bar-label">${t.militarySupport}</span>
+                            <div class="status-bar-wrapper">
+                                <div class="status-bar-fill" style="width: ${militaryPercent}%;"></div>
+                            </div>
+                        </div>
+                        <div class="status-bar-container">
+                            <span class="status-bar-label">${t.workerSupport}</span>
+                            <div class="status-bar-wrapper">
+                                <div class="status-bar-fill" style="width: ${workerPercent}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="date-indicator">${scenario.season[gameState.language]} ${scenario.year}</div>
+            `;
+
+            let choicesHTML = '<div class="choices-container">';
+            for (let i = 0; i < scenario.choices.length; i++) {
+                const choice = scenario.choices[i];
+                let disabled = false;
+                let reqText = "";
+
+                if (choice.requirements === 'influence' && gameState.influenceValue < 3) {
+                    disabled = true;
+                    reqText = `<span class="choice-requirement">(Requires 3 Influence)</span>`;
+                }
+                
+                choicesHTML += `
+                    <button 
+                        class="choice-button" 
+                        onclick="makeChoice(${i})"
+                        ${disabled ? 'disabled' : ''}
+                    >
+                        ${choice.text[gameState.language]}
+                        ${reqText}
+                    </button>
+                `;
+            }
+            choicesHTML += '</div>';
+
+            gameContent.innerHTML = `
+                ${statusHTML}
+                <div class="scenario-container">
+                    <h2 class="scenario-title">${scenario.title[gameState.language]}</h2>
+                    <p class="scenario-text">${scenario.text[gameState.language]}</p>
+                    <div class="historical-context">
+                        <h4>Historical Context</h4>
+                        <p>${scenario.historicalContext[gameState.language]}</p>
+                    </div>
+                </div>
+                ${choicesHTML}
+            `;
+        }
+
+        /**
+         * Processes a player's choice, updates state, and renders the next screen
+         */
+        function makeChoice(choiceIndex) {
+            let currentScenarios;
+            if (gameState.character === 'farmer') {
+                currentScenarios = farmerScenarios;
+            } else {
+                currentScenarios = nobleScenarios;
+            }
+            
+            const scenario = currentScenarios[gameState.currentScenario];
+            const choice = scenario.choices[choiceIndex];
+
+            for (const key in choice.effects) {
+                if (gameState.hasOwnProperty(key)) {
+                    let newValue = gameState[key] + choice.effects[key];
+                    // Apply clamping only to core 1-5 stats
+                    if (['wealthValue', 'influenceValue', 'safetyValue', 'honorValue'].includes(key)) {
+                         if (newValue < 0) newValue = 0;
+                         if (newValue > 5) newValue = 5;
+                    }
+                    // Allow support stats to go beyond 5 conceptually, but bar caps display
+                    else if (['militarySupport', 'workerSupport'].includes(key)) {
+                         if (newValue < -5) newValue = -5; // Example lower bound if needed
+                         // No upper bound needed if bar handles display cap
+                    }
+                     // Allow politicalAlignment to range freely
+                    gameState[key] = newValue;
+                }
+            }
+
+            gameState.currentScenario++;
+            
+            checkGameOver(); 
+            
+            // Only render if game is not over
+            if (gameState.isAlive) {
+                renderGameScreen(); 
+            }
+        }
+
+
+        /**
+         * Checks for game-ending conditions
+         */
+        function checkGameOver() {
+            let gameOverMessage = "";
+            const t = texts[gameState.language];
+
+            // Farmer-specific game over
+            if (gameState.character === 'farmer') {
+                if (gameState.wealthValue <= 0) {
+                    gameOverMessage = "You have starved to death. A cold end for a hard life.";
+                    gameState.isAlive = false;
+                } else if (gameState.safetyValue <= 0) {
+                    gameOverMessage = "You were executed for poaching (or rebellion). Your protest has ended.";
+                    gameState.isAlive = false;
+                }
+            } 
+            // Noble-specific game over (now includes Baroness)
+            else {
+                if (gameState.safetyValue <= 0) {
+                    gameOverMessage = "Your lack of safety led to your demise. You were assassinated by radicals.";
+                    gameState.isAlive = false;
+                } else if (gameState.wealthValue <= 0) {
+                    gameOverMessage = "You have gone bankrupt. Your family has lost all its property and titles.";
+                    gameState.isAlive = false;
+                } else if (gameState.influenceValue <= 0) {
+                    gameOverMessage = "You became a political pariah, irrelevant and powerless. Your family line is forgotten.";
+                    gameState.isAlive = false;
+                }
+            }
+            
+            if (!gameState.isAlive) {
+                showGameOver(gameOverMessage);
+            }
+        }
+
+        /**
+         * Renders the Game Over screen
+         */
+        function showGameOver(message) {
+            const t = texts[gameState.language];
+            gameContent.innerHTML = `
+                <div class="game-over">
+                    <h2>${t.gameOver}</h2>
+                    <p>${message}</p>
+                    <button class="restart-button" onclick="initGame()">${t.restart}</button>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the Game Complete (Win) screen
+         */
+        function showGameComplete() {
+            const t = texts[gameState.language];
+            let completeMessage = "";
+            if (gameState.character === 'farmer') {
+                completeMessage = "You have survived. The war is over, the Kaiser is gone, and you still have your land. It is not much, but it is everything.";
+            } 
+            else { // Nobles win message
+                completeMessage = "You successfully navigated the fall of an empire and the rise of a new republic. Your family, though changed, endures.";
+            }
+
+            gameContent.innerHTML = `
+                <div class="game-complete">
+                    <h2>${t.gameComplete}</h2>
+                    <p>${completeMessage}</p>
+                    <button class="restart-button" onclick="initGame()">${t.restart}</button>
+                </div>
+            `;
+        }
+
+        // === START THE GAME ===
+        // This function will run when the page loads
+        window.onload = initGame;
+        
+    </script>
+</body>
+</html>
+
+
